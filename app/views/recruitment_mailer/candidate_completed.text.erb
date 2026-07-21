@@ -1,0 +1,13 @@
+New candidate onboarding completed
+
+Name: <%= @profile.full_name.presence || "-" %>
+Email: <%= @profile.email.presence || "-" %>
+Phone: <%= @profile.phone_number.presence || "-" %>
+City: <%= @profile.city.presence || "-" %>
+Desired job function: <%= @job_function || "-" %>
+Years of experience: <%= @profile.years_of_experience || "-" %>
+Education records: <%= @profile.educations.size %>
+Work experience records: <%= @profile.work_experiences.size %>
+Skills selected: <%= @profile.skills.size %>
+
+Review the full profile in the admin dashboard.

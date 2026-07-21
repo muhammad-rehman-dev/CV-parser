@@ -1,0 +1,16 @@
+<% content_for :title, "Profile complete" %>
+
+<div class="mx-auto max-w-2xl text-center">
+  <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100">
+    <svg class="h-7 w-7 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+    </svg>
+  </div>
+  <h1 class="mt-4 text-2xl font-semibold text-slate-900">Your profile is complete</h1>
+  <p class="mt-2 text-slate-600">
+    Thank you, <%= candidate_profile.full_name.presence || "candidate" %>. Our recruitment
+    team has been notified and will review your profile.
+  </p>
+  <%= link_to "Edit my profile", edit_onboarding_profile_path,
+        class: "mt-6 inline-block rounded-md border border-slate-300 px-5 py-2.5 text-slate-700 hover:bg-slate-100" %>
+</div>

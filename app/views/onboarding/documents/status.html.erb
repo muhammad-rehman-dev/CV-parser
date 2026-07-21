@@ -1,0 +1,53 @@
+<% content_for :title, "Analyzing your CV" %>
+
+<%= render "onboarding/steps/progress", step: 1 %>
+
+<div class="mx-auto max-w-2xl text-center"
+     data-controller="cv-status"
+     data-cv-status-url-value="<%= status_onboarding_document_path(@document, format: :json) %>"
+     data-cv-status-finished-value="<%= @document.parsing_finished? %>"
+     data-cv-status-redirect-value="<%= edit_onboarding_profile_path %>">
+
+  <% if @document.failed? %>
+    <h1 class="text-2xl font-semibold text-slate-900">We could not read your CV</h1>
+    <p class="mt-2 text-slate-600">No problem, you can complete your profile manually.</p>
+    <%= link_to "Continue manually", edit_onboarding_profile_path,
+          class: "mt-6 inline-block rounded-md bg-teal-600 px-5 py-2.5 text-white hover:bg-teal-700" %>
+  <% elsif @document.completed? %>
+    <h1 class="text-2xl font-semibold text-slate-900">Your CV is ready</h1>
+    <p class="mt-2 text-slate-600">Taking you to your prefilled profile…</p>
+    <%= link_to "Review profile", edit_onboarding_profile_path,
+          class: "mt-6 inline-block rounded-md bg-teal-600 px-5 py-2.5 text-white hover:bg-teal-700" %>
+  <% else %>
+    <div class="flex flex-col items-center">
+      <h1 class="text-2xl font-semibold text-slate-900">Analyzing your CV</h1>
+      <p class="mt-2 text-slate-600" data-cv-status-target="message">Reading your CV…</p>
+
+      <div class="mt-6 w-full max-w-md">
+        <div class="h-2.5 w-full overflow-hidden rounded-full bg-slate-200">
+          <div class="h-full rounded-full bg-teal-600 transition-all duration-500 ease-out"
+               style="width: 5%" data-cv-status-target="bar"></div>
+        </div>
+        <div class="mt-2 flex items-center justify-between text-xs text-slate-500">
+          <span data-cv-status-target="percent">5%</span>
+          <span>You can stay on this page</span>
+        </div>
+      </div>
+
+      <ol class="mt-8 w-full max-w-md space-y-2 text-left text-sm">
+        <li class="flex items-center gap-2" data-cv-status-target="step" data-threshold="15">
+          <span data-cv-status-target="stepIcon" class="text-slate-300">○</span>
+          <span class="text-slate-600">Reading your CV</span>
+        </li>
+        <li class="flex items-center gap-2" data-cv-status-target="step" data-threshold="55">
+          <span data-cv-status-target="stepIcon" class="text-slate-300">○</span>
+          <span class="text-slate-600">Extracting your details</span>
+        </li>
+        <li class="flex items-center gap-2" data-cv-status-target="step" data-threshold="85">
+          <span data-cv-status-target="stepIcon" class="text-slate-300">○</span>
+          <span class="text-slate-600">Matching skills and experience</span>
+        </li>
+      </ol>
+    </div>
+  <% end %>
+</div>

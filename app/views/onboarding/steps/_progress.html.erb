@@ -1,0 +1,14 @@
+<% current = local_assigns.fetch(:step, 1) %>
+<ol class="mx-auto mb-8 flex max-w-2xl items-center gap-4 text-sm">
+  <% [[1, "Upload CV"], [2, "Review profile"]].each do |number, label| %>
+    <li class="flex items-center gap-2">
+      <span class="flex h-7 w-7 items-center justify-center rounded-full <%= number <= current ? "bg-teal-600 text-white" : "bg-slate-200 text-slate-500" %>">
+        <%= number %>
+      </span>
+      <span class="<%= number == current ? "font-medium text-slate-900" : "text-slate-500" %>"><%= label %></span>
+    </li>
+    <% unless number == 2 %>
+      <li class="h-px w-8 bg-slate-300" aria-hidden="true"></li>
+    <% end %>
+  <% end %>
+</ol>

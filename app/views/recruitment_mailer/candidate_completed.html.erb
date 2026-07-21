@@ -1,0 +1,17 @@
+<h2>New candidate onboarding completed</h2>
+
+<p>A candidate has just completed onboarding. Summary:</p>
+
+<ul>
+  <li><strong>Name:</strong> <%= @profile.full_name.presence || "—" %></li>
+  <li><strong>Email:</strong> <%= @profile.email.presence || "—" %></li>
+  <li><strong>Phone:</strong> <%= @profile.phone_number.presence || "—" %></li>
+  <li><strong>City:</strong> <%= @profile.city.presence || "—" %></li>
+  <li><strong>Desired job function:</strong> <%= @job_function || "—" %></li>
+  <li><strong>Years of experience:</strong> <%= @profile.years_of_experience || "—" %></li>
+  <li><strong>Education records:</strong> <%= @profile.educations.size %></li>
+  <li><strong>Work experience records:</strong> <%= @profile.work_experiences.size %></li>
+  <li><strong>Skills selected:</strong> <%= @profile.skills.size %></li>
+</ul>
+
+<p>Review the full profile in the admin dashboard.</p>

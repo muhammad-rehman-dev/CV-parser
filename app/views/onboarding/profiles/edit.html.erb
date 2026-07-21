@@ -1,0 +1,346 @@
+<% content_for :title, "Review your profile" %>
+<% profile = candidate_profile %>
+<% selected_skill_ids = profile.skill_ids %>
+
+<%= render "onboarding/steps/progress", step: 2 %>
+
+<div class="mb-6">
+  <h1 class="text-2xl font-semibold text-slate-900">Review and complete your profile</h1>
+  <% if profile.latest_cv&.completed? %>
+    <p class="mt-2 text-sm text-slate-600">
+      We prefilled what we could from your CV. Please check the highlighted fields
+      and complete anything that is missing.
+    </p>
+  <% else %>
+    <p class="mt-2 text-sm text-slate-600">Fill in your details below.</p>
+  <% end %>
+  <p class="mt-2 text-xs text-slate-500">
+    Fields marked with <%= required_marker %> are required to save your profile.
+  </p>
+</div>
+
+<% if profile.errors.any? %>
+  <div class="mb-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+    <p class="font-medium">Please fix the following:</p>
+    <ul class="mt-1 list-disc pl-5">
+      <% profile.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<%= form_with model: profile, url: onboarding_profile_path, method: :patch, scope: :candidate_profile,
+      data: { controller: "conditional-fields" }, class: "space-y-8" do |form| %>
+
+  <%# 1. Personal details %>
+  <section class="rounded-lg border border-slate-200 bg-white p-6">
+    <h2 class="text-lg font-semibold text-slate-900">Personal details</h2>
+    <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div>
+        <%= form.label :first_name, class: "text-sm font-medium text-slate-700" %><%= required_marker %>
+        <%= review_badge(profile, :first_name, required: true) %>
+        <%= form.text_field :first_name, class: onboarding_input_classes %>
+      </div>
+      <div>
+        <%= form.label :last_name, class: "text-sm font-medium text-slate-700" %><%= required_marker %>
+        <%= review_badge(profile, :last_name, required: true) %>
+        <%= form.text_field :last_name, class: onboarding_input_classes %>
+      </div>
+      <div>
+        <%= form.label :email, class: "text-sm font-medium text-slate-700" %><%= required_marker %>
+        <%= review_badge(profile, :email, required: true) %>
+        <%= form.email_field :email, class: onboarding_input_classes %>
+      </div>
+      <div>
+        <%= form.label :phone_number, class: "text-sm font-medium text-slate-700" %><%= required_marker %>
+        <%= review_badge(profile, :phone_number, required: true) %>
+        <%= form.telephone_field :phone_number, placeholder: "+31 6 12345678", class: onboarding_input_classes %>
+      </div>
+      <div>
+        <%= form.label :city, "City / place of residence", class: "text-sm font-medium text-slate-700" %><%= required_marker %>
+        <%= review_badge(profile, :city, required: true) %>
+        <%= form.text_field :city, class: onboarding_input_classes %>
+      </div>
+      <div>
+        <%= form.label :country, class: "text-sm font-medium text-slate-700" %>
+        <%= review_badge(profile, :country) %>
+        <%= form.text_field :country, class: onboarding_input_classes %>
+      </div>
+    </div>
+
+    <div class="mt-5" data-controller="nested-form">
+      <div class="flex items-center justify-between">
+        <span class="text-sm font-medium text-slate-700">Languages<%= required_marker %></span>
+        <button type="button" data-action="nested-form#add" class="text-sm text-teal-700 hover:text-teal-900">+ Add language</button>
+      </div>
+      <div class="mt-2 space-y-2" data-nested-form-target="list">
+        <%= form.fields_for :candidate_languages do |lf| %>
+          <%= render "language_fields", f: lf %>
+        <% end %>
+      </div>
+      <template data-nested-form-target="template">
+        <%= form.fields_for :candidate_languages, CandidateLanguage.new, child_index: "NEW_RECORD" do |lf| %>
+          <%= render "language_fields", f: lf %>
+        <% end %>
+      </template>
+    </div>
+  </section>
+
+  <%# 2. Job preferences %>
+  <section class="rounded-lg border border-slate-200 bg-white p-6">
+    <h2 class="text-lg font-semibold text-slate-900">Job preferences</h2>
+    <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div>
+        <%= form.label :job_function_id, "Desired job function", class: "text-sm font-medium text-slate-700" %><%= required_marker %>
+        <%= review_badge(profile, :job_function_id) %>
+        <select name="candidate_profile[job_function_id]" class="<%= onboarding_input_classes %>"
+                data-conditional-fields-target="jobFunction"
+                data-action="change->conditional-fields#refresh">
+          <option value="">—</option>
+          <% JobFunction.active.ordered.each do |fn| %>
+            <option value="<%= fn.id %>"
+                    data-requires-big="<%= fn.requires_big_registration %>"
+                    data-revenue-based="<%= fn.revenue_based %>"
+                    <%= "selected" if profile.job_function_id == fn.id %>>
+              <%= fn.name %>
+            </option>
+          <% end %>
+        </select>
+      </div>
+      <div>
+        <%= form.label :search_status, class: "text-sm font-medium text-slate-700" %><%= required_marker %>
+        <%= form.select :search_status,
+              CandidateProfile.search_statuses.keys.map { |s| [s.humanize, s] },
+              { include_blank: "—" }, class: onboarding_input_classes %>
+      </div>
+      <div>
+        <%= form.label :max_travel_time, "Maximum travel time (minutes)", class: "text-sm font-medium text-slate-700" %><%= required_marker %>
+        <%= form.number_field :max_travel_time, min: 0, class: onboarding_input_classes %>
+      </div>
+      <div>
+        <%= form.label :reason_for_looking, class: "text-sm font-medium text-slate-700" %>
+        <%= form.text_field :reason_for_looking, class: onboarding_input_classes %>
+      </div>
+    </div>
+
+    <div class="mt-5">
+      <span class="text-sm font-medium text-slate-700">Preferred regions<%= required_marker %></span>
+      <div class="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
+        <%= form.collection_check_boxes :region_ids, Region.active.ordered, :id, :name do |b| %>
+          <label class="flex items-center gap-2 text-sm text-slate-700">
+            <%= b.check_box(class: "h-4 w-4 rounded border-slate-300 text-teal-600") %>
+            <%= b.text %>
+          </label>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="mt-5">
+      <span class="text-sm font-medium text-slate-700">Transport type</span>
+      <div class="mt-2 flex flex-wrap gap-4">
+        <%= hidden_field_tag "candidate_profile[transport_types][]", "" %>
+        <% CandidateProfile::TRANSPORT_TYPES.each do |transport| %>
+          <label class="flex items-center gap-2 text-sm text-slate-700">
+            <%= check_box_tag "candidate_profile[transport_types][]", transport,
+                  profile.transport_types.include?(transport),
+                  id: "transport_#{transport}", class: "h-4 w-4 rounded border-slate-300 text-teal-600" %>
+            <%= transport.humanize %>
+          </label>
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+  <%# 3. Employment and compensation %>
+  <section class="rounded-lg border border-slate-200 bg-white p-6">
+    <h2 class="text-lg font-semibold text-slate-900">Employment and compensation</h2>
+
+    <div class="mt-4">
+      <span class="text-sm font-medium text-slate-700">Desired employment type<%= required_marker %></span>
+      <div class="mt-2 flex flex-wrap gap-4">
+        <%= form.collection_check_boxes :employment_type_ids, EmploymentType.active.ordered, :id, :name do |b| %>
+          <label class="flex items-center gap-2 text-sm text-slate-700">
+            <%= b.check_box(class: "h-4 w-4 rounded border-slate-300 text-teal-600",
+                  data: { conditional_fields_target: "employmentType", category: b.object.category,
+                          action: "change->conditional-fields#refresh" }) %>
+            <%= b.text %>
+          </label>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div data-conditional-fields-target="salary" class="hidden">
+        <%= form.label :desired_gross_salary, "Desired gross salary (per month)", class: "text-sm font-medium text-slate-700" %><%= required_marker %>
+        <%= form.number_field :desired_gross_salary, min: 0, class: onboarding_input_classes %>
+      </div>
+      <div data-conditional-fields-target="percentage" class="hidden">
+        <%= form.label :desired_percentage, "Desired percentage", class: "text-sm font-medium text-slate-700" %><%= required_marker %>
+        <%= form.number_field :desired_percentage, min: 0, max: 100, class: onboarding_input_classes %>
+      </div>
+      <div data-conditional-fields-target="revenue" class="hidden">
+        <%= form.label :average_daily_revenue, "Average daily revenue", class: "text-sm font-medium text-slate-700" %><%= required_marker %>
+        <%= form.number_field :average_daily_revenue, min: 0, step: 0.01, class: onboarding_input_classes %>
+      </div>
+      <div>
+        <%= form.label :years_of_experience, "Years of combined dental experience", class: "text-sm font-medium text-slate-700" %><%= required_marker %>
+        <%= review_badge(profile, :years_of_experience) %>
+        <%= form.number_field :years_of_experience, min: 0, class: onboarding_input_classes %>
+      </div>
+    </div>
+
+    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2" data-conditional-fields-target="big" >
+      <div>
+        <%= form.label :big_registration_status, "BIG registration status", class: "text-sm font-medium text-slate-700" %><%= required_marker %>
+        <%= review_badge(profile, :big_registration_status) %>
+        <%= form.select :big_registration_status,
+              CandidateProfile.big_registration_statuses.keys.map { |s| [s.sub("big_", "").humanize, s] },
+              { include_blank: "—" }, class: onboarding_input_classes %>
+      </div>
+      <div>
+        <%= form.label :big_number, "BIG number", class: "text-sm font-medium text-slate-700" %>
+        <%= form.text_field :big_number, class: onboarding_input_classes %>
+      </div>
+    </div>
+  </section>
+
+  <%# 4. Education %>
+  <section class="rounded-lg border border-slate-200 bg-white p-6" data-controller="nested-form">
+    <div class="flex items-center justify-between">
+      <h2 class="text-lg font-semibold text-slate-900">Education</h2>
+      <button type="button" data-action="nested-form#add" class="text-sm text-teal-700 hover:text-teal-900">+ Add education</button>
+    </div>
+    <div class="mt-4 space-y-3" data-nested-form-target="list">
+      <%= form.fields_for :educations do |ef| %>
+        <%= render "education_fields", f: ef %>
+      <% end %>
+    </div>
+    <template data-nested-form-target="template">
+      <%= form.fields_for :educations, Education.new, child_index: "NEW_RECORD" do |ef| %>
+        <%= render "education_fields", f: ef %>
+      <% end %>
+    </template>
+  </section>
+
+  <%# 5. Work experience %>
+  <section class="rounded-lg border border-slate-200 bg-white p-6" data-controller="nested-form">
+    <div class="flex items-center justify-between">
+      <h2 class="text-lg font-semibold text-slate-900">Work experience</h2>
+      <button type="button" data-action="nested-form#add" class="text-sm text-teal-700 hover:text-teal-900">+ Add work experience</button>
+    </div>
+    <div class="mt-4 space-y-3" data-nested-form-target="list">
+      <%= form.fields_for :work_experiences do |wf| %>
+        <%= render "work_experience_fields", f: wf %>
+      <% end %>
+    </div>
+    <template data-nested-form-target="template">
+      <%= form.fields_for :work_experiences, WorkExperience.new, child_index: "NEW_RECORD" do |wf| %>
+        <%= render "work_experience_fields", f: wf %>
+      <% end %>
+    </template>
+  </section>
+
+  <%# 6. Skills %>
+  <section class="rounded-lg border border-slate-200 bg-white p-6">
+    <h2 class="text-lg font-semibold text-slate-900">Skills</h2>
+    <p class="mt-1 text-sm text-slate-500">Select the skills that apply to your chosen job function.</p>
+    <%= hidden_field_tag "candidate_profile[skill_ids][]", "" %>
+
+    <% JobFunction.active.ordered.each do |fn| %>
+      <div class="mt-4 <%= "hidden" unless profile.job_function_id == fn.id %>"
+           data-conditional-fields-target="skillGroup" data-job-function-id="<%= fn.id %>">
+        <p class="text-sm font-medium text-slate-700"><%= fn.name %> skills</p>
+        <div class="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
+          <% fn.skills.active.ordered.each do |skill| %>
+            <label class="flex items-center gap-2 text-sm text-slate-700">
+              <%= check_box_tag "candidate_profile[skill_ids][]", skill.id,
+                    selected_skill_ids.include?(skill.id),
+                    id: "skill_#{skill.id}", class: "h-4 w-4 rounded border-slate-300 text-teal-600" %>
+              <%= skill.name %>
+            </label>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <% suggestions = profile.candidate_skills.select(&:suggestion?) %>
+    <% if suggestions.any? %>
+      <div class="mt-5 rounded-md border border-amber-200 bg-amber-50 p-3">
+        <p class="text-sm font-medium text-amber-800">Detected in your CV (kept for recruiter review)</p>
+        <div class="mt-2 flex flex-wrap gap-4">
+          <% suggestions.each do |cs| %>
+            <label class="flex items-center gap-2 text-sm text-amber-900">
+              <%= check_box_tag "kept_candidate_skill_ids[]", cs.id, true, class: "h-4 w-4 rounded border-amber-300 text-amber-600" %>
+              <%= cs.name %>
+            </label>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </section>
+
+  <%# 7. Availability %>
+  <section class="rounded-lg border border-slate-200 bg-white p-6">
+    <h2 class="text-lg font-semibold text-slate-900">Availability</h2>
+    <div class="mt-4">
+      <span class="text-sm font-medium text-slate-700">Available working days<%= required_marker %></span>
+      <div class="mt-2 flex flex-wrap gap-4">
+        <%= hidden_field_tag "candidate_profile[available_working_days][]", "" %>
+        <% CandidateProfile::WORKING_DAYS.each do |day| %>
+          <label class="flex items-center gap-2 text-sm text-slate-700">
+            <%= check_box_tag "candidate_profile[available_working_days][]", day,
+                  profile.available_working_days.include?(day),
+                  id: "day_#{day}", class: "h-4 w-4 rounded border-slate-300 text-teal-600" %>
+            <%= day.humanize %>
+          </label>
+        <% end %>
+      </div>
+    </div>
+    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div>
+        <%= form.label :available_from, class: "text-sm font-medium text-slate-700" %><%= required_marker %>
+        <%= form.date_field :available_from, class: onboarding_input_classes %>
+      </div>
+      <div>
+        <%= form.label :notice_period, class: "text-sm font-medium text-slate-700" %>
+        <%= form.text_field :notice_period, placeholder: "e.g. 1 month", class: onboarding_input_classes %>
+      </div>
+    </div>
+  </section>
+
+  <%# 8. Additional information %>
+  <section class="rounded-lg border border-slate-200 bg-white p-6">
+    <h2 class="text-lg font-semibold text-slate-900">Additional information</h2>
+    <div class="mt-4 space-y-4">
+      <div>
+        <%= form.label :professional_summary, class: "text-sm font-medium text-slate-700" %>
+        <%= review_badge(profile, :professional_summary) %>
+        <%= form.text_area :professional_summary, rows: 3, class: onboarding_input_classes %>
+      </div>
+      <div>
+        <%= form.label :motivation, "Motivation for employer", class: "text-sm font-medium text-slate-700" %>
+        <%= form.text_area :motivation, rows: 3, class: onboarding_input_classes %>
+      </div>
+      <div>
+        <%= form.label :internal_notes, "Internal notes for the recruitment team", class: "text-sm font-medium text-slate-700" %>
+        <%= form.text_area :internal_notes, rows: 3, class: onboarding_input_classes %>
+      </div>
+    </div>
+  </section>
+
+  <%# Consent + submit %>
+  <div class="rounded-lg border border-slate-200 bg-white p-6">
+    <label class="flex items-start gap-3 text-sm text-slate-700">
+      <%= check_box_tag :consent, "1", false, required: true, class: "mt-0.5 h-4 w-4 rounded border-slate-300 text-teal-600" %>
+      <span>I agree that my CV and profile information may be processed to create and improve my candidate profile.<%= required_marker %></span>
+    </label>
+    <div class="mt-5 flex items-center gap-3">
+      <%= form.submit "Save profile", class: "rounded-md bg-teal-600 px-6 py-2.5 text-white hover:bg-teal-700" %>
+      <% if profile.latest_cv&.file&.attached? %>
+        <%= link_to "View uploaded CV", onboarding_document_path(profile.latest_cv),
+              target: "_blank", class: "text-sm text-slate-600 underline hover:text-slate-800" %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

@@ -1,0 +1,14 @@
+<div class="flex items-end gap-3 rounded-md border border-slate-200 bg-slate-50 p-3" data-nested-form-row>
+  <div class="flex-1">
+    <%= f.label :language_id, "Language", class: "text-sm font-medium text-slate-700" %>
+    <%= f.collection_select :language_id, Language.active.ordered, :id, :name, { include_blank: "—" }, class: onboarding_input_classes %>
+  </div>
+  <div class="flex-1">
+    <%= f.label :level, "Level (e.g. B2, fluent, native)", class: "text-sm font-medium text-slate-700" %>
+    <%= f.text_field :level, class: onboarding_input_classes %>
+  </div>
+  <div class="pb-2">
+    <%= f.hidden_field :_destroy %>
+    <button type="button" data-action="nested-form#remove" class="text-sm text-red-600 hover:text-red-800">Remove</button>
+  </div>
+</div>

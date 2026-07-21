@@ -1,0 +1,15 @@
+<% content_for :title, "Dental Talent Onboarding" %>
+
+<div class="mx-auto max-w-2xl text-center">
+  <h1 class="text-3xl font-semibold text-slate-900">Create your candidate profile in minutes</h1>
+  <p class="mt-4 text-slate-600">
+    Upload your CV and we will automatically fill in as much of your candidate
+    profile as possible. You review and edit everything before saving.
+  </p>
+  <div class="mt-8 flex justify-center gap-3">
+    <%= link_to "Get started", new_user_registration_path,
+          class: "rounded-md bg-teal-600 px-5 py-2.5 text-white hover:bg-teal-700" %>
+    <%= link_to "I already have an account", new_user_session_path,
+          class: "rounded-md border border-slate-300 px-5 py-2.5 text-slate-700 hover:bg-slate-100" %>
+  </div>
+</div>
