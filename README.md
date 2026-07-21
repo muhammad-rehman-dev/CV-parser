@@ -67,8 +67,9 @@ Shared behaviour is extracted into concerns so it lives in one place:
 * `ReferenceData` holds the common scopes and label for the admin managed lookup models.
 * `ParsingStatus` holds the document parsing lifecycle (the status enum and its transitions).
 * `FieldMetadata` exposes the review badge helpers backed by the `jsonb` metadata column.
-* `ProfileCompletionValidations` holds the full rule set that only runs on final submission.
 * `ConsentVerification` holds the consent check shared by the upload and profile controllers.
+
+These concerns are used across several models or controllers. The completion rule set, by contrast, lives directly in `CandidateProfile` (grouped under a single `with_options on: :complete` block) because it is specific to that one model.
 
 ### Custom validator
 
