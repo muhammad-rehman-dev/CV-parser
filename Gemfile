@@ -50,7 +50,7 @@ gem "mission_control-jobs", "~> 1.0"
 
 # CV parsing: LLM client (provider-agnostic) + text extraction
 gem "ruby_llm", "~> 1.9"
-gem "pdf-reader", "~> 2.12"
+gem "pdf-reader", "~> 2.16"
 gem "docx", "~> 0.8"
 
 # International phone number validation/formatting
