@@ -45,7 +45,7 @@ gem "activeadmin", "~> 3.2"
 gem "sassc-rails", "~> 2.1"
 
 # Background jobs (Rails-native, no Redis)
-gem "solid_queue", "~> 1.1"
+gem "solid_queue", "~> 1.7"
 gem "mission_control-jobs", "~> 1.0"
 
 # CV parsing: LLM client (provider-agnostic) + text extraction
