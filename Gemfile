@@ -80,7 +80,7 @@ end
 
 group :test do
   # Rails 7.2's test runner is built against the Minitest 5 API.
-  gem "minitest", "~> 5.25"
+  gem "minitest", "~> 6.0"
 
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
