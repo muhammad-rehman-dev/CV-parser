@@ -37,7 +37,7 @@ gem "bootsnap", require: false
 # gem "image_processing", "~> 1.2"
 
 # Authentication for candidates
-gem "devise", "~> 4.9"
+gem "devise", "~> 5.0"
 
 # Admin / recruiter dashboard and config management
 gem "activeadmin", "~> 3.2"
